@@ -1,0 +1,51 @@
+﻿@page "/taskManagement"
+
+<PageTitle>Task Management</PageTitle>
+
+<h3>Task Management</h3>
+
+<ul>
+    @foreach (Model.Task task in tasks.GetAllTasks().Where(task => !task.Deleted).OrderBy(task => task.IsDone))
+    {
+        <li>
+            <input type="checkbox" @bind="@task.IsDone" />
+            <input type="text" @bind="@task.Name" />
+            <input type="date" @bind="@task.LimitDataTime"/>
+            <button @onclick="@(e => FinishTask(task))">Finish</button>
+        </li>
+    }
+</ul>
+
+<input type="text" placeholder="Something todo" @bind="newTaskName"/>
+<input type="date" @bind="newLimitDateTime"/>
+<button @onclick="AddTask">Add</button>
+
+@code {
+
+    private Model.TaskCollection tasks = new();
+    
+    private string? newTaskName;
+    private DateTime newLimitDateTime = DateTime.Now;
+
+    void AddTask()
+    {
+        if (!string.IsNullOrWhiteSpace(newTaskName))
+        {
+            Model.Task newTask = new(
+                tasks.Count() + 1, 
+                newTaskName, 
+                newLimitDateTime
+            );
+
+            tasks.Add(newTask);
+
+            newTaskName = string.Empty;
+        }
+    }
+
+    void FinishTask(Model.Task task)
+    {
+         tasks.Delete(task);
+    }
+
+}
